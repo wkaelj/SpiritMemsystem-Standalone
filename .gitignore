@@ -1,0 +1,10 @@
+
+build
+.ccls
+.vscode*
+*.x86_64
+*.out
+*.exe
+*.o
+*.a
+
