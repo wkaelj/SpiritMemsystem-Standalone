@@ -7,9 +7,10 @@
 int main () {
 
     memblock testblock = {};
-    testblock.mapbits[0] = 0b000010110111; // index 9 for 3
+    testblock.mapbits[0] = B64_MAX; // index 9 for 3
+    testblock.mapbits[1] = 0b101;
 
-    unsigned x = findPtr (&testblock, 1);
+    unsigned x = findPtr (&testblock, 3);
     printf ("%u\n", x);
     //testblock.mapbits[2] = 0xf0;
 }

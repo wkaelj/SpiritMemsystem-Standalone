@@ -62,7 +62,7 @@ uint_fast8_t setPtr (memblock *hd, void *index, size_t size, uint_fast8_t TorF )
 }
 
 // find a pointer
-uint64_t findPtr (memblock *hd, const register size_t minSize) {
+uint64_t findPtr (memblock *hd, const size_t minSize) {
 
     if (minSize >= 4096) {
         // get make better memory?
@@ -78,20 +78,21 @@ uint64_t findPtr (memblock *hd, const register size_t minSize) {
     // TODO handle size over lines
     while (found) {
         // handle ctz undefined behavoir for 0
-        if ((testingByte | ~(B64_MAX >> currentIndex)) == 0x00) return 0;        // if there is a gap
-        else if (__builtin_ctz (testingByte) > 0) {
+        if (__builtin_ctz (testingByte) > 0) {
             // handle single bit gaps between variables
             if (testingByte & 0x2){
                 testingByte >>= 1; // handle the single-bit gaps between variable
                 currentIndex++;
             } else
             // handle gaps that are big enough for the variable
+            // the | ~(B64_MAX >> currentIndex) is because if the map has been shifted left,
+            // the trailing 0s might be treated as empty space
             if (__builtin_clz (testingByte | ~(B64_MAX >> currentIndex)) - 2 >= minSize) {
-                return currentIndex + 1;
+                return currentIndex + 1 + currentRow * 64;
             }
             // handle gaps that do not fit the variable
             else {
-                bufferInt = __builtin_clz (testingByte);
+                bufferInt = __builtin_clz (testingByte | ~(B64_MAX) >> currentIndex);
                 bufferInt += currentIndex;
                 if (bufferInt >= 64) {
                     currentRow++;
@@ -108,12 +109,13 @@ uint64_t findPtr (memblock *hd, const register size_t minSize) {
             if (bufferInt >= 64) {
                 currentRow++; //next line
                 currentIndex = 0;
+                printf ("new row: %u\n", currentRow);
                 testingByte = hd->mapbits[currentRow];
             } else currentIndex = bufferInt;
         }
     }
-    printf ("EXIT FAILURE");
-    return 1493847;
+    printf ("allocation failure");
+    return UINT64_MAX;
 }
 
 uint_fast8_t checkBitFast (memblock *hd, void *index) {

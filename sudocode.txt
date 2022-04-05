@@ -1,0 +1,9 @@
+check if testingbtye is 0, because builtin_clz is undefined for all 0s
+    if the second bit is 1, it is just a spacer between variables and cannot be used
+        move left by one
+        increment index
+    if there are suffucient leading 0s, -2 for the spacers, for the size
+        return it's index +1 (for the spacer)
+    otherwise
+        
+    
